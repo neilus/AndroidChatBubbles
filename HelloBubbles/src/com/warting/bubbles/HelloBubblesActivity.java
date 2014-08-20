@@ -3,6 +3,10 @@ package com.warting.bubbles;
 import java.util.Random;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -58,10 +62,20 @@ public class HelloBubblesActivity extends Activity {
 	}
 	/// Perform action on key press
 	void submitMsg(EditText newMsg) {
-		
-		adapter.add(new OneComment(false, newMsg.getText().toString()));
+		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+    	Notification notification = new Notification(R.drawable.ic_launcher, "A new notification", System.currentTimeMillis());
+    	notification.flags |= Notification.FLAG_AUTO_CANCEL;
+    	String msg = newMsg.getText().toString();
+    	
+    	Intent intent = new Intent(this,HelloBubblesActivity.class);
+    	PendingIntent activity = PendingIntent.getActivity(this, 0, intent, 0);
+    	
+    	notification.setLatestEventInfo(this, "New Chat Message", msg, activity);
+    	notification.number ++;
+		adapter.add(new OneComment(false, msg));
 		newMsg.setText("");
 		
+    	notificationManager.notify(0, notification);
 		
 	}
 
