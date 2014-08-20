@@ -7,9 +7,9 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 import de.svenjacobs.loremipsum.LoremIpsum;
 
 public class HelloBubblesActivity extends Activity {
@@ -18,6 +18,7 @@ public class HelloBubblesActivity extends Activity {
 	private LoremIpsum ipsum;
 	private EditText editText1;
 	private static Random random;
+	private Button sendBtn;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -27,6 +28,16 @@ public class HelloBubblesActivity extends Activity {
 		ipsum = new LoremIpsum();
 
 		lv = (ListView) findViewById(R.id.listView1);
+		sendBtn = (Button) findViewById(R.id.new_msg_btn);
+		sendBtn.setOnClickListener(new Button.OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				adapter.add(new OneComment(false, editText1.getText().toString()));
+				editText1.setText("");
+			}
+			
+		});
 
 		adapter = new DiscussArrayAdapter(getApplicationContext(), R.layout.listitem_discuss);
 
@@ -37,7 +48,7 @@ public class HelloBubblesActivity extends Activity {
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				// If the event is a key-down event on the "enter" button
 				if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-					// Perform action on key press
+					//submitMsg(editText1);
 					adapter.add(new OneComment(false, editText1.getText().toString()));
 					editText1.setText("");
 					return true;
@@ -47,6 +58,13 @@ public class HelloBubblesActivity extends Activity {
 		});
 
 		addItems();
+	}
+	/// Perform action on key press
+	void submitMsg(EditText newMsg) {
+		
+		adapter.add(new OneComment(false, newMsg.getText().toString()));
+		newMsg.setText("");
+		
 	}
 
 	private void addItems() {
