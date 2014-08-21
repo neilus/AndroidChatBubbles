@@ -62,16 +62,17 @@ public class HelloBubblesActivity extends Activity {
 	}
 	/// Perform action on key press
 	void submitMsg(EditText newMsg) {
+		String msg = newMsg.getText().toString();
+		// Creating a notification
 		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-    	Notification notification = new Notification(R.drawable.ic_launcher, "A new notification", System.currentTimeMillis());
+    	Notification notification = new Notification(R.drawable.ic_launcher, "New bubble\n"+msg, System.currentTimeMillis());
     	notification.flags |= Notification.FLAG_AUTO_CANCEL;
-    	String msg = newMsg.getText().toString();
-    	
+    	//Initializing an intent for the notification to open the application's activity
     	Intent intent = new Intent(this,HelloBubblesActivity.class);
     	PendingIntent activity = PendingIntent.getActivity(this, 0, intent, 0);
-    	
     	notification.setLatestEventInfo(this, "New Chat Message", msg, activity);
     	notification.number ++;
+    	//Adding the new message to the ListView's adapter
 		adapter.add(new OneComment(false, msg));
 		newMsg.setText("");
 		
