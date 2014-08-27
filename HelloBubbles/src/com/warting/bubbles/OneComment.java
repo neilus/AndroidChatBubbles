@@ -9,5 +9,7 @@ public class OneComment {
 		this.left = left;
 		this.comment = comment;
 	}
-
+	public String toString(){
+		return ((this.left)?"left":"right") + ": "+ this.comment;
+	}
 }

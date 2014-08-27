@@ -1,5 +1,8 @@
 package com.warting.bubbles;
 
+import hu.neilus.ConversationDb;
+
+import java.util.ArrayList;
 import java.util.Random;
 
 import android.app.Activity;
@@ -8,6 +11,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
@@ -17,7 +21,9 @@ import android.widget.ListView;
 import de.svenjacobs.loremipsum.LoremIpsum;
 
 public class HelloBubblesActivity extends Activity {
-	private com.warting.bubbles.DiscussArrayAdapter adapter;
+	ConversationDb msgAdapter;
+	
+	com.warting.bubbles.DiscussArrayAdapter adapter;
 	private ListView lv;
 	private LoremIpsum ipsum;
 	private EditText editText1;
@@ -28,9 +34,13 @@ public class HelloBubblesActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_discuss);
-		random = new Random();
-		ipsum = new LoremIpsum();
-
+		//random = new Random();
+		//ipsum = new LoremIpsum();
+		
+		// initializing the local db connection
+		msgAdapter = new ConversationDb(HelloBubblesActivity.this);
+		msgAdapter.open();
+		
 		lv = (ListView) findViewById(R.id.listView1);
 		sendBtn = (Button) findViewById(R.id.new_msg_btn);
 		sendBtn.setOnClickListener(new Button.OnClickListener(){
@@ -42,7 +52,8 @@ public class HelloBubblesActivity extends Activity {
 			
 		});
 
-		adapter = new DiscussArrayAdapter(getApplicationContext(), R.layout.listitem_discuss);
+		adapter = new DiscussArrayAdapter(getApplicationContext(), 
+				R.layout.listitem_discuss);
 
 		lv.setAdapter(adapter);
 
@@ -58,11 +69,14 @@ public class HelloBubblesActivity extends Activity {
 			}
 		});
 
-		addItems();
+		//addItems();
+		loadMsg();
 	}
 	/// Perform action on key press
 	void submitMsg(EditText newMsg) {
 		String msg = newMsg.getText().toString();
+		msgAdapter.insertMsg(1, msg);
+		newMsg.setText("");
 		// Creating a notification
 		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     	Notification notification = new Notification(R.drawable.ic_launcher, "New bubble\n"+msg, System.currentTimeMillis());
@@ -73,13 +87,25 @@ public class HelloBubblesActivity extends Activity {
     	notification.setLatestEventInfo(this, "New Chat Message", msg, activity);
     	notification.number ++;
     	//Adding the new message to the ListView's adapter
-		adapter.add(new OneComment(false, msg));
-		newMsg.setText("");
-		
+    	adapter.add(new OneComment(false, msg));
     	notificationManager.notify(0, notification);
-		
+    	lv.setAdapter(adapter);
 	}
-
+	void loadMsg(){
+		OneComment msg;
+		// load the messages 
+		ArrayList<OneComment> allMsg = new ArrayList();
+		allMsg = msgAdapter.selectAllMsg();
+		Log.v("database output",allMsg.toString());
+		adapter = new DiscussArrayAdapter(getApplicationContext(), 
+				R.layout.listitem_discuss);
+		for(int i=0; i < allMsg.size();i++){
+			msg = allMsg.get(i);
+			Log.v("loaded message:" , msg.toString());
+			adapter.add(msg);
+		}
+		lv.setAdapter(adapter);
+	}
 	private void addItems() {
 		adapter.add(new OneComment(true, "Hello bubbles!"));
 
