@@ -33,6 +33,8 @@ public class HelloBubblesActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//TODO: setting up the username 
+		OneComment.initialize("neilus");
 		setContentView(R.layout.activity_discuss);
 		//random = new Random();
 		//ipsum = new LoremIpsum();
@@ -75,7 +77,7 @@ public class HelloBubblesActivity extends Activity {
 	/// Perform action on key press
 	void submitMsg(EditText newMsg) {
 		String msg = newMsg.getText().toString();
-		msgAdapter.insertMsg(1, msg);
+		msgAdapter.insertMsg(0, new OneComment(OneComment.myuid,msg));
 		newMsg.setText("");
 		// Creating a notification
 		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -87,7 +89,7 @@ public class HelloBubblesActivity extends Activity {
     	notification.setLatestEventInfo(this, "New Chat Message", msg, activity);
     	notification.number ++;
     	//Adding the new message to the ListView's adapter
-    	adapter.add(new OneComment(false, msg));
+    	adapter.add(new OneComment(OneComment.myuid, msg));
     	notificationManager.notify(0, notification);
     	lv.setAdapter(adapter);
 	}

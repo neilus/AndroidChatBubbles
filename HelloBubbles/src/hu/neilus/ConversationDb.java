@@ -18,7 +18,7 @@ public class ConversationDb {
 	private ConversationDbHelper dbHelper;
 	private SQLiteDatabase db;
 	final private String DATABASE_NAME = "unatkozom";
-	private int DATABASE_VERSION = 1;
+	private int DATABASE_VERSION = 2;
 	final private String CONVERSATIONS="conversations";
 	
 	public ConversationDb(Context context){
@@ -44,7 +44,19 @@ public class ConversationDb {
 		Log.v("Conversation database insertion", conversationId + ": " + msg);
 		db.insert(CONVERSATIONS, null, cv);
 	}
-	
+	/**
+	 * Like above, only it insers comments
+	 * @param conversationId as int
+	 * @param msg as OneComment
+	 */
+	public void insertMsg(int conversationId,OneComment msg){
+		ContentValues cv = new ContentValues();
+		cv.put("conversationid", conversationId);
+		cv.put("msg", msg.comment);
+		cv.put("uid", msg.uid);
+		Log.v("Conversation database insertion", conversationId + ": " + msg.toString());
+		db.insert(CONVERSATIONS, null, cv);
+	}
 	/**
 	 * returns the list of all the messages saved in the database
 	 * @return ArrayList as String
@@ -65,11 +77,12 @@ public class ConversationDb {
 		Cursor cursor = db.query(CONVERSATIONS, null, null, null, null, null, null, null);
 		if(cursor != null && cursor.moveToFirst()){
 			do{
-				allMsg.add(new OneComment( (cursor.getInt(1) ==0), cursor.getString(2) ));
+				allMsg.add(new OneComment( cursor.getString(3), cursor.getString(2) ));
 			}while(cursor.moveToNext());
 		}
 		return allMsg;
 	}
+	
 	
 	public class ConversationDbHelper extends SQLiteOpenHelper{
 
@@ -83,7 +96,7 @@ public class ConversationDb {
 		public void onCreate(SQLiteDatabase db) {
 			final String createDb = " CREATE TABLE IF NOT EXISTS "+ CONVERSATIONS 
 					+"(id integer primary key autoincrement, conversationid "
-					+ "integer, msg text);";
+					+ "integer, msg text, uid text);";
 			db.execSQL(createDb);
 		}
 
